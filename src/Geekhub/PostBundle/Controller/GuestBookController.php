@@ -20,7 +20,7 @@ class GuestBookController extends Controller
         $post = new GuestBook();
         $form = $this->createForm(new GuestBookType(), $post);
         $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository('GeekhubPostBundle:GuestBook')->findAll();
+        $posts = $em->getRepository('GeekhubPostBundle:GuestBook')->findAllPostDesc();
 
         $paginator = $this->get('knp_paginator');
         $posts = $paginator->paginate(
@@ -48,25 +48,27 @@ class GuestBookController extends Controller
     /**
      * @Template()
      */
-    public function showAction($id)
+    public function showAction($slug)
     {
         $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository('GeekhubPostBundle:GuestBook')->findOneById($id);
+        $posts = $em->getRepository('GeekhubPostBundle:GuestBook')->findOneBy(array('slug' => $slug));
 
         if (!$posts) {
             throw new \Exception("Post not found!");
         }
 
-        return array('posts' => $posts);
+        $created = $posts->getCreated()->format('d.m.Y');
+
+        return array('posts' => $posts, 'created' => $created);
     }
 
     /**
      * @Template()
      */
-    public function removeAction($id)
+    public function removeAction($slug)
     {
         $em = $this->getDoctrine()->getManager();
-        $posts = $em->getRepository('GeekhubPostBundle:GuestBook')->findOneById($id);
+        $posts = $em->getRepository('GeekhubPostBundle:GuestBook')->findOneBy(array('slug' => $slug));
 
         if (!$posts) {
             throw new \Exception("Post not found!");
